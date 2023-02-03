@@ -7,16 +7,16 @@ createdb:
 dropdb:
 	docker exec -it postgres12 dropdb approval_events 
 
-migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+shell:
+	docker exec -it postgres12 /bin/sh
 
-migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
+psql-shell:
+	docker exec -it postgres12 psql -U root
 
-sqlc: 
-	sqlc generate
+# sqlc: 
+# 	sqlc generate
 
-test:
-	go test -v -cover ./...
+# test:
+# 	go test -v -cover ./...
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
+.PHONY: postgres createdb dropdb shell
