@@ -1,15 +1,64 @@
 import express from "express";
 import dotenv from "dotenv";
+import { ethers } from "ethers";
+import abiJSON from "../YangitERC20.json";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+const alchemyURI = process.env.ALCHEMY_URL;
+const yangitERC20Address = process.env.YANGIT_ERC20 as string;
 
-app.get("/", (req, res) => {
-  res.send("Wasaaa");
-});
+// app.get("/yo", async (_, res) => {
+//   const provider = new ethers.providers.JsonRpcProvider(alchemyURI);
+//   // const BACKEND_WALLET_PVT_KEY = process.env.BACKEND_WALLET_PVT_KEY as string;
+//   // const signer = new ethers.Wallet(BACKEND_WALLET_PVT_KEY, provider);
 
-app.listen(port, () => {
-  console.log(`[server]: server is runing at http://localhost:${port}`);
-});
+//   // emit Approval(owner, spender, amount);
+//   // let ygtContract = new ethers.Contract(erc20, abiJSON.abi, provider);
+//   let ygtContract = new ethers.Contract(
+//     yangitERC20Address,
+//     abiJSON.abi,
+//     provider
+//   );
+
+//   // const ygtContract = new ethers.providers.AlchemyProvider(
+//   //   "https://eth-goerli.g.alchemy.com/v2/SPd7VteBVbgcrj2NqjUd-xVJtdfcQUn6"
+//   // );
+//   // const account1 = "0x657D3C03e450E4815f3411Aa26713A2A90e9Ad83";
+//   // const account2 = "0x6b531D03dEF4d25e3fc300b88c032a1f620D22B0";
+//   // let ygtUser = ygtContract.connect(signer);
+
+//   const events = await ygtContract.queryFilter("Approval");
+//   console.log(events);
+//   // const val = await ygtUser.allowance(account1, account2);
+//   // console.log(val);
+//   res.send("sdfd");
+// });
+
+// app.listen(port, async () => {
+//   console.log(`[server]: server is runing at http://localhost:${port}`);
+//   // const events = await ygtContract.queryFilter("");
+//   // console.log(events);
+// });
+
+const main = async () => {
+  const provider = new ethers.providers.JsonRpcProvider(alchemyURI);
+  let ygtContract = new ethers.Contract(
+    yangitERC20Address,
+    abiJSON.abi,
+    provider
+  );
+
+  await ygtContract.on("Approval", async (owner, spender, amount) => {
+    const events = await ygtContract.queryFilter("Approval");
+    console.log(events);
+    console.log(owner);
+    console.log(spender);
+    console.log(amount);
+  });
+  console.log("[offchain]: listending for approvals");
+};
+
+main();
