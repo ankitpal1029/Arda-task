@@ -9,7 +9,7 @@ const alchemyURI = process.env.ALCHEMY_URL;
 const yangitERC20Address = process.env.YANGIT_ERC20 as string;
 const anotherERC20Address = process.env.ANOTHER_ERC20 as string;
 
-const supportedERC20 = [
+export const supportedERC20 = [
   { address: yangitERC20Address, name: "YANGIT" },
   { address: anotherERC20Address, name: "ANOTHER" },
 ];

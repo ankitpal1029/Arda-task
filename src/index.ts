@@ -5,6 +5,7 @@ import { main } from "./offchain";
 import express from "express";
 import allowanceRoute from "./routes/allowance";
 import setAllowanceRoute from "./routes/setAllowance";
+import cors from "cors";
 
 dotenv.config();
 
@@ -13,9 +14,10 @@ main();
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.json());
 app.use(allowanceRoute);
 app.use(setAllowanceRoute);
+app.use(express.json());
+app.use(cors());
 
 const server = app.listen(port, () => {
   console.log(`[api]: express is listening on port ${port}`);
