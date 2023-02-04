@@ -1,15 +1,5 @@
 import db from "./db";
 
-// const FetchEventsByOwner = (
-//   owner: string,
-//   spender: string,
-//   amount: string,
-//   blockstamp: string
-// ) => {
-
-//   //   db("approval_events").select("*").from("approval_events").
-// };
-
 const ModifyAllowance = async (
   owner: string,
   spender: string,

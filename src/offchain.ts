@@ -17,13 +17,12 @@ const supportedERC20 = [
 export const main = async () => {
   supportedERC20.forEach(
     async ({ address, name }: { address: string; name: string }) => {
+      name;
       const provider = new ethers.providers.JsonRpcProvider(alchemyURI);
       let ygtContract = new ethers.Contract(address, abiJSON.abi, provider);
       const events = await ygtContract.queryFilter("Approval");
       let unique = new Set();
       let uniquePairs: any[] = [];
-      console.log(name);
-      console.log(events);
 
       events.forEach((event: any) => {
         if (
@@ -73,6 +72,9 @@ export const main = async () => {
         // const events = await ygtContract.queryFilter("Approval");
         // const timestamp = await (await events[0].getBlock()).timestamp;
         const blocknumber = await provider.getBlockNumber();
+        console.log(
+          `[offchain]: Approval Event > from: ${owner} to: ${spender} value: ${amount.toString()}`
+        );
 
         try {
           await AddEvent(
@@ -85,6 +87,17 @@ export const main = async () => {
           // const currentAllowance = await ygtContract.allowance(owner, spender);
           await ModifyAllowance(owner, spender, amount.toString(), address);
 
+          await updateOthersInLedger(address);
+        } catch (err) {
+          console.log(err);
+        }
+      });
+
+      await ygtContract.on("Transfer", async (from, to, value) => {
+        console.log(
+          `[offchain]: Transfer Event > from: ${from} to: ${to} value: ${value}`
+        );
+        try {
           await updateOthersInLedger(address);
         } catch (err) {
           console.log(err);
