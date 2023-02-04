@@ -2,6 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import abiJSON from "../YangitERC20.json";
+import { AddEvent } from "./db/AddEvent";
+import { FetchEventsUniqueOwners } from "./db/FetchEvents";
+import { FetchAllLedger, ModifyAllowance } from "./db/ModifyLedger";
+import { stringify } from "querystring";
 
 dotenv.config();
 
@@ -52,13 +56,41 @@ const main = async () => {
   );
 
   await ygtContract.on("Approval", async (owner, spender, amount) => {
-    const events = await ygtContract.queryFilter("Approval");
-    console.log(events);
-    console.log(owner);
-    console.log(spender);
-    console.log(amount);
+    // const events = await ygtContract.queryFilter("Approval");
+    // const timestamp = await (await events[0].getBlock()).timestamp;
+    const blocknumber = await provider.getBlockNumber();
+
+    try {
+      await AddEvent(owner, spender, amount.toString(), blocknumber.toString());
+      // const currentAllowance = await ygtContract.allowance(owner, spender);
+      await ModifyAllowance(owner, spender, amount.toString());
+
+      await updateOthersInLedger();
+    } catch (err) {
+      console.log(err);
+    }
   });
   console.log("[offchain]: listending for approvals");
+};
+
+const updateOthersInLedger = async () => {
+  const provider = new ethers.providers.JsonRpcProvider(alchemyURI);
+  let ygtContract = new ethers.Contract(
+    yangitERC20Address,
+    abiJSON.abi,
+    provider
+  );
+  try {
+    const ledgerEntries = await FetchAllLedger();
+    console.log(ledgerEntries);
+    ledgerEntries.forEach(async ({ owner, spender, amount }) => {
+      console.log(amount);
+      const currentAllowance = await ygtContract.allowance(owner, spender);
+      await ModifyAllowance(owner, spender, currentAllowance.toString());
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 main();

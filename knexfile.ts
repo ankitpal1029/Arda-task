@@ -4,7 +4,7 @@ const HOST = process.env.DB_HOST as string;
 const PORT = parseInt(process.env.DB_PORT as string);
 const USER = process.env.DB_USER_ as string;
 const PASSWORD = process.env.DB_PASSWORD_ as string;
-const DATABASE = process.env.DB_DATABASE as string;
+const DATABASE = process.env.DB_DATABASE_ as string;
 
 const config: { [key: string]: Knex.Config } = {
   development: {
@@ -16,10 +16,11 @@ const config: { [key: string]: Knex.Config } = {
       user: "root",
       // password: PASSWORD,
       password: "secret",
-      database: DATABASE,
+      database: "approval_events",
     },
   },
 };
 
-module.exports = config;
+// module.exports = config;
+export default config;
 // export { config };
