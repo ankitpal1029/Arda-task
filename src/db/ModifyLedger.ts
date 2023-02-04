@@ -29,4 +29,8 @@ const FetchAllLedger = async () => {
   return await db("approval_events").select("*").from("approval_ledger");
 };
 
-export { ModifyAllowance, FetchAllLedger };
+const DeleteAllLedger = async () => {
+  await db.raw("delete from approval_ledger");
+};
+
+export { ModifyAllowance, FetchAllLedger, DeleteAllLedger };

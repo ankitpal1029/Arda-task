@@ -4,8 +4,13 @@ import { ethers } from "ethers";
 import abiJSON from "../YangitERC20.json";
 import { AddEvent } from "./db/AddEvent";
 import { FetchEventsUniqueOwners } from "./db/FetchEvents";
-import { FetchAllLedger, ModifyAllowance } from "./db/ModifyLedger";
+import {
+  DeleteAllLedger,
+  FetchAllLedger,
+  ModifyAllowance,
+} from "./db/ModifyLedger";
 import { stringify } from "querystring";
+import { DeleteAllEvents } from "./db/DeleteEvents";
 
 dotenv.config();
 
@@ -54,6 +59,51 @@ const main = async () => {
     abiJSON.abi,
     provider
   );
+  const events = await ygtContract.queryFilter("Approval");
+  // console.log(events[0]);
+  // console.log(events[0]?.args?.owner);
+  // console.log(events[0]?.args?.spender);
+  // console.log(events[0]?.args?.value.toString());
+
+  let unique = new Set();
+  let uniquePairs: any[] = [];
+  events.forEach((event: any) => {
+    if (
+      !unique.has(
+        event?.args?.owner.toString() + event?.args?.spender.toString()
+      )
+    ) {
+      unique.add(
+        event?.args?.owner.toString() + event?.args?.spender.toString()
+      );
+      uniquePairs.push({
+        owner: event?.args?.owner,
+        spender: event?.args?.spender,
+      });
+    }
+  });
+  console.log(uniquePairs);
+
+  uniquePairs.forEach(async (event) => {
+    const currentAllowance = await ygtContract.allowance(
+      event.owner,
+      event.spender
+    );
+    await ModifyAllowance(
+      event.owner,
+      event.spender,
+      currentAllowance.toString()
+    );
+  });
+
+  events.forEach(async (event) => {
+    await AddEvent(
+      event?.args?.owner,
+      event?.args?.spender,
+      event?.args?.value.toString(),
+      event?.blockNumber.toString()
+    );
+  });
 
   await ygtContract.on("Approval", async (owner, spender, amount) => {
     // const events = await ygtContract.queryFilter("Approval");
@@ -92,5 +142,12 @@ const updateOthersInLedger = async () => {
     console.log(err);
   }
 };
+process.on("SIGINT", async () => {
+  console.log("[offchain]: caught interupt signal");
+  await DeleteAllLedger();
+  console.log("[offchain]: deleted approval_ledger table");
+  await DeleteAllEvents();
+  console.log("[offchain]: deleted approval_events table");
+});
 
 main();
