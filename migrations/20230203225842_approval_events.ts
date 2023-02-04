@@ -7,14 +7,16 @@ export async function up(knex: Knex): Promise<void> {
       table.string("spender").notNullable();
       table.string("amount").notNullable();
       table.string("blocknumber").notNullable();
+      table.string("tokenaddress").notNullable();
     })
     .createTable("approval_ledger", (table) => {
       table.string("owner").notNullable();
       table.string("spender").notNullable();
       table.string("amount").notNullable();
+      table.string("tokenaddress").notNullable();
     })
     .raw(
-      "ALTER TABLE approval_ledger ADD CONSTRAINT owner_spender UNIQUE (owner, spender)"
+      "ALTER TABLE approval_ledger ADD CONSTRAINT owner_spender_tokenaddress UNIQUE (owner, spender, tokenaddress)"
     );
 }
 

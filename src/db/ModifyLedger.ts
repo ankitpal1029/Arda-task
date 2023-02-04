@@ -13,13 +13,14 @@ import db from "./db";
 const ModifyAllowance = async (
   owner: string,
   spender: string,
-  updatedAmount: string
+  updatedAmount: string,
+  tokenaddress: string
 ) => {
   return await db.raw(
     `INSERT INTO approval_ledger 
-	(owner, spender, amount) 
-	values ('${owner}', '${spender}', '${updatedAmount.toString()}')
-    on conflict(owner, spender) 
+	(owner, spender, amount, tokenaddress) 
+	values ('${owner}', '${spender}', '${updatedAmount.toString()}', '${tokenaddress}')
+    on conflict(owner, spender, tokenaddress) 
     do UPDATE set 
 	amount = '${updatedAmount.toString()}';`
   );
