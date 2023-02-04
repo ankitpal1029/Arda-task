@@ -3,7 +3,8 @@ import { DeleteAllLedger } from "./db/ModifyLedger";
 import { DeleteAllEvents } from "./db/DeleteEvents";
 import { main } from "./offchain";
 import express from "express";
-import router from "./routes/allowance";
+import allowanceRoute from "./routes/allowance";
+import setAllowanceRoute from "./routes/setAllowance";
 
 dotenv.config();
 
@@ -13,7 +14,8 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
-app.use(router);
+app.use(allowanceRoute);
+app.use(setAllowanceRoute);
 
 const server = app.listen(port, () => {
   console.log(`[api]: express is listening on port ${port}`);

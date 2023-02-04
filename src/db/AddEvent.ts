@@ -9,8 +9,8 @@ const AddEvent = async (
 ) => {
   await db("approval_events").insert({
     owner,
-    amount,
     spender,
+    amount,
     blocknumber,
     tokenaddress,
   });

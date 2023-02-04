@@ -77,6 +77,7 @@ export const main = async () => {
         );
 
         try {
+          console.log("> address", address);
           await AddEvent(
             owner,
             spender,
@@ -111,15 +112,16 @@ export const main = async () => {
 
 const updateOthersInLedger = async (tokenaddress: string) => {
   const provider = new ethers.providers.JsonRpcProvider(alchemyURI);
-  let ygtContract = new ethers.Contract(
-    yangitERC20Address,
-    abiJSON.abi,
-    provider
-  );
+  let ygtContract = new ethers.Contract(tokenaddress, abiJSON.abi, provider);
   try {
     const ledgerEntries = await FetchAllLedger();
+    console.log(ledgerEntries);
     ledgerEntries.forEach(async ({ owner, spender }) => {
       const currentAllowance = await ygtContract.allowance(owner, spender);
+      // console.log("> currentAllowance :", currentAllowance);
+      // console.log("> owner :", owner);
+      // console.log("> spender :", spender);
+
       await ModifyAllowance(
         owner,
         spender,
